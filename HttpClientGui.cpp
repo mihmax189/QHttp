@@ -64,6 +64,20 @@ HttpClientGui::HttpClientGui(QWidget * pwgt) : QWidget(pwgt) {
   setLayout(pMainLayout);
 }
 
+// запуск процесса загрузки
 void HttpClientGui::slotGo() {
   pClient->download(QUrl(strDownloadLink));
+}
+
+void HttpClientGui::slotDownloadProgress(qint64 nReceived, qint64 nTotal) {
+  // nTotal -- размер загружаемого файла
+  if (nTotal <= 0) {
+    slotError();
+    return;
+  }
+  pProgBar->setValue(100 * nReceived / nTotal);
+}
+
+void HttpClientGui::slotError() {
+
 }

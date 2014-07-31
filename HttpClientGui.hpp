@@ -54,8 +54,8 @@ public:
 
 private slots:
   void slotGo();                                   // осуществляет испольнение загрузки ресурса
-  //void slotError();                                // вызывает при возникновении ошибки
-  //void slotDownloadProgress(qint64, qint64);       // отображает процесс загрузки
+  void slotError();                                // вызывает при возникновении ошибки
+  void slotDownloadProgress(qint64, qint64);       // отображает процесс загрузки
   //void sloteDone(const QUrl &, const QByteArray);  // выполняет конечные действия по окончании
                                                      // загрузки
 };
