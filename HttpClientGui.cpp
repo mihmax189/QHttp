@@ -12,12 +12,18 @@ HttpClient::HttpClient(QObject * pobj) : QObject(pobj) {
           this, SLOT(slotFinished(QNetworkReply *)));
 }
 
-void HttpClient::slotFinished(QNetworkReply *) {
-  // объект QNetworkReply соответствует текущей проверенной операции
-}
-
 void HttpClient::download(const QUrl & url) {
   QNetworkRequest request(url);                       // входной объект запроса для pReply
   /*QNetworkReply * pReply =*/ pNetManager->get(request); // выполнение запроса
   //connect(pReply, SIGNAL())
+}
+
+
+void HttpClient::slotFinished(QNetworkReply * pReply) {
+  // объект QNetworkReply соответствует текущей проверенной операции
+  if (pReply->error() != QNetworkReply::NoError)
+    emit error();
+  else
+    emit done(pReply->url(), pReply->readAll());
+  pReply->deleteLater();
 }
