@@ -7,14 +7,26 @@
 #include <QUrl>
 #include <QWidget>
 #include <QtXml>
+#include <QObject>
 
-class HttpClientGui : public QWidget {
-Q_OBJECT
+class QNetworkAccessManager;
+class QNetworkReply;
+
+class HttpClient : public QObject {
+Q_OBJECT;
 private:
   QHttp httpServer;
-
+  QNetworkAccessManager * pNetManager;
+  void download(const QUrl &);                 // загрузка ресурса, заданного в параметр QUrl
 public:
-  HttpClientGui(QWidget * pwgt = 0); //(QObject * pobj = 0);
+  HttpClient(QObject * pwgt = 0);
+
+signals:
+  void done(const QUrl &, const QByteArray &); // сигнал о завершении загрузки
+  void error();                                // сигнал о ошибке загрузки
+
+private slots:
+  void slotFinished(QNetworkReply *);          // вызывается в конце загрузки
 };
 
 #endif // HTTP_CLIENT_H_
