@@ -13,7 +13,7 @@ HttpClient::HttpClient(QObject * pobj) : QObject(pobj) {
 }
 
 void HttpClient::download(const QUrl & url) {
-  QNetworkRequest request(url);                       // входной объект запроса для pReply
+  QNetworkRequest request(url);                           // входной объект запроса для pReply
   /*QNetworkReply * pReply =*/ pNetManager->get(request); // выполнение запроса
   //connect(pReply, SIGNAL())
 }
@@ -24,6 +24,6 @@ void HttpClient::slotFinished(QNetworkReply * pReply) {
   if (pReply->error() != QNetworkReply::NoError)
     emit error();
   else
-    emit done(pReply->url(), pReply->readAll());
-  pReply->deleteLater();
+    emit done(pReply->url(), pReply->readAll());          // передать полученные данные дальше
+  pReply->deleteLater();                                  // удаление объекта QNetworkReply
 }

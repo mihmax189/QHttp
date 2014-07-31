@@ -26,7 +26,12 @@ signals:
   void error();                                // сигнал о ошибке загрузки
 
 private slots:
-  void slotFinished(QNetworkReply *);          // вызывается в конце загрузки
+  void slotFinished(QNetworkReply *);          // вызывается по завершении операции загрузки
 };
 
+
+// реализация GUI
+class HttpClientGui {
+
+};
 #endif // HTTP_CLIENT_H_
