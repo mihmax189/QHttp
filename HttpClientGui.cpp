@@ -175,3 +175,10 @@ bool AnalizeXML::endElement(const QString &, const QString &,
     qDebug() << "TagName: " << str << "\tText: " << m_strText;
   return true;
 }
+
+bool AnalizeXML::fatalError(const QXmlParseException & exception) {
+  qDebug() << "Line: " << exception.lineNumber();
+  qDebug() << "Column: " << exception.columnNumber();
+  qDebug() << "Message: " << exception.message();
+  return false;
+}

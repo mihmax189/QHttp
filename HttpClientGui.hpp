@@ -87,6 +87,6 @@ public:
   bool endElement(const QString &,
                   const QString &,
                   const QString &);
-  //bool fatalError(const QXmlParseException &);
+  bool fatalError(const QXmlParseException &);
 };
 #endif // HTTP_CLIENT_H_
