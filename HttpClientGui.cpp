@@ -9,7 +9,9 @@
 #include <QGridLayout>
 #include <QMessageBox>
 #include <QtXml>
-#include <QDomNode>
+#include <QXmlStreamReader>
+#include <QXmlSimpleReader>
+#include <QXmlInputSource>
 
 HttpClient::HttpClient(QObject * pobj) : QObject(pobj) {
   pNetManager = new QNetworkAccessManager(this);
@@ -88,22 +90,33 @@ void HttpClientGui::slotDownloadProgress(qint64 nReceived, qint64 nTotal) {
 void HttpClientGui::slotDone(const QUrl & url, const QByteArray & data) {
   // запись в XML файл или отображение данных
   // QDomDocument -- представляет собой XML-документ
-  //qDebug() << data;
-  QDomDocument domDoc;
+
+  //QDomDocument domDoc;
   // считывание XML-документа в объект QDomDocument
-  domDoc.setContent(data);
+  //domDoc.setContent(data);
   // QDomElement -- содержит корневой элемент XML-документа, который возвращается
   // методом documentElement()
-  QDomElement domElement = domDoc.documentElement();
+  //QDomElement domElement = domDoc.documentElement();
   // прохождение по всем элементам XML-документа
-  traverseNode(domElement);
+  //traverseNode(domElement);
+
+  // чтобы поместить XML-документ в SAX-анализатор создаем объект QXmlInputSource
+  QXmlInputSource source;
+  // и помещаем в него данные XML-документа
+  source.setData(data);
+  // объект QXmlSimpleReader позволяет анализировать XML-файл
+  QXmlSimpleReader reader;
+  // установить объект handler который выполняет анализ и отображение XML-документа
+  //reader.setContentHandler(handler);
+  // запустить анализ XML-файла
+  //reader.parse(source);
 }
 
 void HttpClientGui::slotError() {
   QMessageBox::critical(0, tr("Error"), tr("An error while is occured"));
 }
-
-void HttpClientGui::traverseNode(const QDomNode & node, const QString & flag /*= "USD"*/) {
+/*
+void HttpClientGui::traverseNode(const QDomNode & node, const QString & flag) {
   QDomNode domNode = node.firstChild();
   while (!domNode.isNull()) {
     if (domNode.isElement()) {
@@ -121,11 +134,21 @@ void HttpClientGui::traverseNode(const QDomNode & node, const QString & flag /*=
         else {
           qDebug() << "\t" << domElement.tagName()
                    << "\t: " << domElement.text();
-          if ()
-          //pRateDollarLineEdit->setText()
+          //if ()
+
         }
       }
     }
     domNode = domNode.nextSibling();
   }
+}
+*/
+void HttpClientGui::setValues(const QDomElement & el) {
+  int nominal, value;
+  bool ok;
+  if (el.tagName() == "Nominal")
+    nominal = el.tagName().toInt();
+  //if (flag == "USD") {
+  //  ;
+  //}
 }

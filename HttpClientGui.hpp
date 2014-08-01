@@ -6,6 +6,7 @@
 #include <QUrl>
 #include <QWidget>
 #include <QObject>
+#include <QXmlDefaultHandler>
 
 class QNetworkAccessManager;
 class QNetworkReply;
@@ -14,6 +15,8 @@ class QLineEdit;
 class QLabel;
 class QPushButton;
 class QDomNode;
+class QDomElement;
+
 
 class HttpClient : public QObject {
 Q_OBJECT;
@@ -47,14 +50,19 @@ private:
   QLabel * pHeaderNameEuro;
   QLabel * pHeaderCharCodeDollar;
   QLabel * pHeaderCharCodeEuro;
-
   QPushButton * pGoButton;
   QString strDownloadLink;
 
+  struct ElementsOfNode {
+    QString charCode;
+    int nominal;
+    double value;
+  } elements;
   const QString idDollarNode;
   const QString idEuroNode;
-  void traverseNode(const QDomNode & node,
-                    const QString & flag = "USD");                 // прохождение по всем элементам XML-документа
+  //void traverseNode(const QDomNode & node,
+  //                  const QString & flag = "USD");   // прохождение по всем элементам XML-документа
+  void setValues(const QDomElement &);
 public:
   HttpClientGui(QWidget * pwgt = 0);
 
@@ -66,4 +74,14 @@ private slots:
                                                       // загрузки
 };
 
+// реализация класса для прохождения по XML-документу
+class AnalizeXML : public QXmlDefaultHandler {
+private:
+  QString m_strText;
+public:
+  bool startElement(const QString &,
+                    const QString &,
+                    const QString &,
+                    const QXmlAttributes & attr);
+};
 #endif // HTTP_CLIENT_H_
