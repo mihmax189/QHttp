@@ -156,7 +156,6 @@ void HttpClientGui::setValues(const QDomElement & el) {
 // AnalizeXML methods
 bool AnalizeXML::startElement(const QString &, const QString &,
                               const QString &, const QXmlAttributes & attrs) {
-
   for (int el = 0; el < attrs.count(); ++el) {
     if (attrs.localName(el) == "id") {
       qDebug() << "Attr: " <<  attrs.value(el);
@@ -167,5 +166,12 @@ bool AnalizeXML::startElement(const QString &, const QString &,
 
 bool AnalizeXML::characters(const QString & strText) {
   m_strText = strText;
+  return true;
+}
+
+bool AnalizeXML::endElement(const QString &, const QString &,
+                            const QString & str) {
+  if (str != "contact" && str != "addressbook")
+    qDebug() << "TagName: " << str << "\tText: " << m_strText;
   return true;
 }
