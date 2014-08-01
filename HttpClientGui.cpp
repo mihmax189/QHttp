@@ -38,8 +38,7 @@ void HttpClient::slotFinished(QNetworkReply * pReply) {
 }
 
 // HttpClientGui methods
-HttpClientGui::HttpClientGui(QWidget * pwgt)
-  : QWidget(pwgt), idDollarNode("R01235"), idEuroNode("R01239") {
+HttpClientGui::HttpClientGui(QWidget * pwgt) : QWidget(pwgt) {
   pClient = new HttpClient(this);
   pProgBar = new QProgressBar;
   pHeaderNameDollar = new QLabel(trUtf8("Доллар США"));
@@ -89,17 +88,10 @@ void HttpClientGui::slotDownloadProgress(qint64 nReceived, qint64 nTotal) {
 
 void HttpClientGui::slotDone(const QUrl & url, const QByteArray & data) {
   // запись в XML файл или отображение данных
-  // QDomDocument -- представляет собой XML-документ
-
-  //QDomDocument domDoc;
-  // считывание XML-документа в объект QDomDocument
-  //domDoc.setContent(data);
-  // QDomElement -- содержит корневой элемент XML-документа, который возвращается
-  // методом documentElement()
-  //QDomElement domElement = domDoc.documentElement();
-  // прохождение по всем элементам XML-документа
-  //traverseNode(domElement);
-
+  // объект AnalizeXML осуществляет прохождение по XML-документу
+  AnalizeXML handler;
+  handler.getCursDollarLine(pRateDollarLineEdit);
+  handler.getCursEuroLine(pRateEuroLineEdit);
   // чтобы поместить XML-документ в SAX-анализатор создаем объект QXmlInputSource
   QXmlInputSource source;
   // и помещаем в него данные XML-документа
@@ -107,78 +99,95 @@ void HttpClientGui::slotDone(const QUrl & url, const QByteArray & data) {
   // объект QXmlSimpleReader позволяет анализировать XML-файл
   QXmlSimpleReader reader;
   // установить объект handler который выполняет анализ и отображение XML-документа
-  //reader.setContentHandler(handler);
+  reader.setContentHandler(&handler);
   // запустить анализ XML-файла
-  //reader.parse(source);
+  reader.parse(source);
 }
 
 void HttpClientGui::slotError() {
   QMessageBox::critical(0, tr("Error"), tr("An error while is occured"));
 }
-/*
-void HttpClientGui::traverseNode(const QDomNode & node, const QString & flag) {
-  QDomNode domNode = node.firstChild();
-  while (!domNode.isNull()) {
-    if (domNode.isElement()) {
-      QDomElement domElement = domNode.toElement();
-      if (!domElement.isNull()) {
-        if (domElement.tagName() == "Valute") {
-          qDebug() << domElement.attribute("ID", "");
-          if (domElement.attribute("ID", "") == idDollarNode) {
-            traverseNode (domNode);
-          }
-          else if (domElement.attribute("ID", "") == idEuroNode) {
-            traverseNode (domNode, "EUR");
-          }
-        }
-        else {
-          qDebug() << "\t" << domElement.tagName()
-                   << "\t: " << domElement.text();
-          //if ()
 
-        }
-      }
-    }
-    domNode = domNode.nextSibling();
-  }
-}
-*/
-void HttpClientGui::setValues(const QDomElement & el) {
-  int nominal, value;
-  bool ok;
-  if (el.tagName() == "Nominal")
-    nominal = el.tagName().toInt();
-  //if (flag == "USD") {
-  //  ;
-  //}
-}
+// AnalizeXML methods -- методы, которые вызываются при
+// прохождении XML-документу
 
-// AnalizeXML methods
+AnalizeXML::AnalizeXML() : QXmlDefaultHandler(),
+                           idDollarNode("R01235"), idEuroNode("R01239") {
+  nominal = 0;
+  value = 0.0;
+}
+// вызывается, когда при считывании XML-документа встречается открытие тега
 bool AnalizeXML::startElement(const QString &, const QString &,
                               const QString &, const QXmlAttributes & attrs) {
+  // attrs -- список атрибутов тега
   for (int el = 0; el < attrs.count(); ++el) {
-    if (attrs.localName(el) == "id") {
-      qDebug() << "Attr: " <<  attrs.value(el);
+    if (attrs.localName(el) == "ID") {
+      if (attrs.value(el) == idDollarNode) {
+        currentCharCode = attrs.value(el);
+      }
+      else if (attrs.value(el) == idEuroNode) {
+        currentCharCode = attrs.value(el);
+      }
     }
   }
   return true;
 }
 
+// записывает содержимое текущего тега в m_strText
 bool AnalizeXML::characters(const QString & strText) {
   m_strText = strText;
   return true;
 }
 
+// вызывается всегда, когда при чтении встречается закрытие тега
 bool AnalizeXML::endElement(const QString &, const QString &,
                             const QString & str) {
-  if (str != "contact" && str != "addressbook")
-    qDebug() << "TagName: " << str << "\tText: " << m_strText;
+  // str -- имя тега
+  if (currentCharCode == idDollarNode) {
+    if (str == "Nominal") {
+      nominal = m_strText.toInt();
+    }
+    if (str == "Value") {
+      bool ok;
+      value = m_strText.toDouble(&ok);
+    }
+    if (nominal != 0 && value != 0.0) {
+      cursDollarLine->setText(QString::number(value / nominal));
+      nominal = 0;
+      value = 0.0;
+      currentCharCode = "";
+    }
+  }
+
+  if (currentCharCode == idEuroNode) {
+    if (str == "Nominal") {
+      nominal = m_strText.toInt();
+    }
+    if (str == "Value") {
+      bool ok;
+      value = m_strText.toDouble(&ok);
+    }
+    if (nominal != 0 && value != 0.0) {
+      cursEuroLine->setText(QString::number(value / nominal));
+      nominal = 0;
+      value = 0.0;
+      currentCharCode = "";
+    }
+  }
   return true;
 }
 
+// вызывается, если не удается проанализировать XML-документ
 bool AnalizeXML::fatalError(const QXmlParseException & exception) {
   qDebug() << "Line: " << exception.lineNumber();
   qDebug() << "Column: " << exception.columnNumber();
   qDebug() << "Message: " << exception.message();
   return false;
+}
+
+void AnalizeXML::getCursDollarLine(QLineEdit * ptr) {
+  cursDollarLine = ptr;
+}
+void AnalizeXML::getCursEuroLine(QLineEdit * ptr) {
+  cursEuroLine = ptr;
 }

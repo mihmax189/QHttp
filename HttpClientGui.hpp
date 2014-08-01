@@ -41,6 +41,7 @@ private slots:
 // реализация GUI
 class HttpClientGui : public QWidget {
   Q_OBJECT
+  friend class AnalizeXML;
 private:
   HttpClient * pClient;
   QProgressBar * pProgBar;
@@ -53,16 +54,6 @@ private:
   QPushButton * pGoButton;
   QString strDownloadLink;
 
-  struct ElementsOfNode {
-    QString charCode;
-    int nominal;
-    double value;
-  } elements;
-  const QString idDollarNode;
-  const QString idEuroNode;
-  //void traverseNode(const QDomNode & node,
-  //                  const QString & flag = "USD");   // прохождение по всем элементам XML-документа
-  void setValues(const QDomElement &);
 public:
   HttpClientGui(QWidget * pwgt = 0);
 
@@ -78,7 +69,16 @@ private slots:
 class AnalizeXML : public QXmlDefaultHandler {
 private:
   QString m_strText;
+  const QString idDollarNode;
+  const QString idEuroNode;
+  QString currentCharCode;
+  QLineEdit * cursDollarLine;
+  QLineEdit * cursEuroLine;
+  int nominal;
+  double value;
+
 public:
+  AnalizeXML();
   bool startElement(const QString &,
                     const QString &,
                     const QString &,
@@ -88,5 +88,8 @@ public:
                   const QString &,
                   const QString &);
   bool fatalError(const QXmlParseException &);
+  void getCursDollarLine(QLineEdit *);
+  void getCursEuroLine(QLineEdit *);
 };
+
 #endif // HTTP_CLIENT_H_
