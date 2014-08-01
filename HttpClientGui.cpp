@@ -152,3 +152,15 @@ void HttpClientGui::setValues(const QDomElement & el) {
   //  ;
   //}
 }
+
+// AnalizeXML methods
+bool AnalizeXML::startElement(const QString &, const QString &,
+                              const QString &, const QXmlAttributes & attrs) {
+
+  for (int el = 0; el < attrs.count(); ++el) {
+    if (attrs.localName(el) == "id") {
+      qDebug() << "Attr: " <<  attrs.value(el);
+    }
+  }
+  return true;
+}
