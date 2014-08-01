@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QUrl>
 #include <QWidget>
-#include <QtXml>
 #include <QObject>
 
 class QNetworkAccessManager;
@@ -14,6 +13,7 @@ class QProgressBar;
 class QLineEdit;
 class QLabel;
 class QPushButton;
+class QDomNode;
 
 class HttpClient : public QObject {
 Q_OBJECT;
@@ -43,21 +43,27 @@ private:
   QProgressBar * pProgBar;
   QLineEdit * pRateDollarLineEdit;
   QLineEdit * pRateEuroLineEdit;
-  QLabel * pHeaderRateDollar;
-  QLabel * pHeaderRateEuro;
+  QLabel * pHeaderNameDollar;
+  QLabel * pHeaderNameEuro;
+  QLabel * pHeaderCharCodeDollar;
+  QLabel * pHeaderCharCodeEuro;
+
   QPushButton * pGoButton;
   QString strDownloadLink;
-  //void showPic(const QString &);
 
+  const QString idDollarNode;
+  const QString idEuroNode;
+  void traverseNode(const QDomNode & node,
+                    const QString & flag = "USD");                 // прохождение по всем элементам XML-документа
 public:
   HttpClientGui(QWidget * pwgt = 0);
 
 private slots:
-  void slotGo();                                   // осуществляет испольнение загрузки ресурса
-  void slotError();                                // вызывает при возникновении ошибки
-  void slotDownloadProgress(qint64, qint64);       // отображает процесс загрузки
-  //void sloteDone(const QUrl &, const QByteArray);  // выполняет конечные действия по окончании
-                                                     // загрузки
+  void slotGo();                                      // осуществляет испольнение загрузки ресурса
+  void slotError();                                   // вызывает при возникновении ошибки
+  void slotDownloadProgress(qint64, qint64);          // отображает процесс загрузки
+  void slotDone(const QUrl &, const QByteArray &);    // выполняет конечные действия по окончании
+                                                      // загрузки
 };
 
 #endif // HTTP_CLIENT_H_
