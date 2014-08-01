@@ -164,3 +164,8 @@ bool AnalizeXML::startElement(const QString &, const QString &,
   }
   return true;
 }
+
+bool AnalizeXML::characters(const QString & strText) {
+  m_strText = strText;
+  return true;
+}

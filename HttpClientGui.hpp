@@ -83,7 +83,7 @@ public:
                     const QString &,
                     const QString &,
                     const QXmlAttributes &);
-  //bool characters(const QString &);
+  bool characters(const QString &);
   //bool endElement(const QString &,
   //                const QString &,
   //                const QString &);
