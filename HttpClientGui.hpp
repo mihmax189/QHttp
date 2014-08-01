@@ -82,6 +82,11 @@ public:
   bool startElement(const QString &,
                     const QString &,
                     const QString &,
-                    const QXmlAttributes & attr);
+                    const QXmlAttributes &);
+  bool characters(const QString &);
+  bool endElement(const QString &,
+                  const QString &,
+                  const QString &);
+  bool fatalError(const QXmlParseException &);
 };
 #endif // HTTP_CLIENT_H_
